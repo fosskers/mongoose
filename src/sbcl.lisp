@@ -70,11 +70,6 @@
   (mgr (* mgr))
   (ms int))
 
-#+nil
-(let ((mgr (make-alien mgr)))
-  (mgr-init mgr)
-  (mgr-free mgr))
-
 ;; --- IO BUFFER --- ;;
 
 (define-alien-type iobuf
@@ -125,3 +120,45 @@
             (is-resp (unsigned 1))
             (is-readable (unsigned 1))
             (is-writable (unsigned 1))))
+
+;; --- HTTP --- ;;
+
+(define-alien-type http-header
+    (struct http-header
+            (name str)
+            (value str)))
+
+(define-alien-type http-message
+    (struct http-message
+            (method str)
+            (uri str)
+            (query str)
+            (proto str)
+            ;; MG_MAX_HTTP_HEADERS = 30
+            (headers (array http-header 30))
+            (body str)
+            (head str)
+            (message str)))
+
+(define-alien-type http-serve-opts
+    (struct http-serve-opts
+            (root-dir c-string)
+            (ssi-pattern c-string)
+            (extra-headers c-string)
+            (mime-types c-string)
+            (page404 c-string)
+            ;; mg_fs
+            ;;
+            ;; Filesystem implementation - NULL for POSIX.
+            (fs (* t))))
+
+#+nil
+(let ((opts (make-alien http-serve-opts)))
+  (setf (slot opts 'root-dir) "/home/colin/code/common-lisp/mongoose/")
+  (describe (slot opts 'root-dir))
+  (free-alien opts))
+
+(define-alien-routine ("mg_http_serve_dir" http-serve-dir) void
+  (c    (* connection))
+  (hm   (* http-message))
+  (opts (* http-serve-opts)))
