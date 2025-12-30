@@ -3,7 +3,7 @@
   :author "Colin Woodbury <colin@fosskers.ca>"
   :license "GPL-2.0"
   :homepage "https://github.com/fosskers/mongoose"
-  :depends-on ()
+  :depends-on (:trivial-garbage)
   :serial t
   :components ((:module "src"
                 :components ((:file "package")

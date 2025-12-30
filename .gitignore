@@ -1,3 +1,4 @@
 vendored/
 *.fasl
 *.fas
+mongoose.c
