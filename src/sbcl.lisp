@@ -1,9 +1,23 @@
 (in-package :mongoose)
 
+;; --- STRINGS --- ;;
+
+(define-alien-type str
+    (struct str
+            (buf c-string)
+            (len size-t)))
+
+;; (define-alien-routine ("mg_str" str) str
+;;   (s c-string))
+
+;; --- DNS --- ;;
+
 (define-alien-type dns
     (struct dns
             (url c-string)
             (connection (* (struct connection)))))
+
+;; --- ADDRESSES --- ;;
 
 (define-alien-type addr
     (struct addr
@@ -15,15 +29,7 @@
             (scope-id (unsigned 8))
             (is-ip6 (boolean 8))))
 
-;; (define-alien-type timer
-;;     (struct timer
-;;             (period-ms (unsigned 64))
-;;             (expire (unsigned 64))
-;;             (flags (unsigned 32))
-;;             ;; A function pointer.
-;;             (fn (* t))
-;;             (arg (* t))
-;;             (next (* (struct timer)))))
+;; --- EVENT MANAGER --- ;;
 
 (define-alien-type mgr
     (struct mgr
@@ -52,12 +58,33 @@
             ;; NOTE: 2025-12-30 Assumed to have no support for `FREERTOS_TCP'.
             (pipe (signed 32))))
 
+(define-alien-routine ("mg_mgr_init" mgr-init) void
+  "Initialize an event manager."
+  (mgr (* mgr)))
+
+(define-alien-routine ("mg_mgr_free" mgr-free) void
+  "Free the `mgr' memory."
+  (mgr (* mgr)))
+
+(define-alien-routine ("mg_mgr_poll" mgr-poll) void
+  (mgr (* mgr))
+  (ms int))
+
+#+nil
+(let ((mgr (make-alien mgr)))
+  (mgr-init mgr)
+  (mgr-free mgr))
+
+;; --- IO BUFFER --- ;;
+
 (define-alien-type iobuf
     (struct iobuf
             (buf (* unsigned-char))
             (size size-t)
             (len size-t)
             (align size-t)))
+
+;; --- CONNECTIONS --- ;;
 
 (define-alien-type connection
     (struct connection
