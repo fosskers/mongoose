@@ -142,6 +142,8 @@
 
 (define-alien-type http-serve-opts
     (struct http-serve-opts
+            ;; NOTE: 2025-12-31 Avoid double dots within paths.
+            ;; This is a warning from the Mongoose docs.
             (root-dir c-string)
             (ssi-pattern c-string)
             (extra-headers c-string)
