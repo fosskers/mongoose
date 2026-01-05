@@ -4,11 +4,20 @@
 
 (define-alien-type str
     (struct str
-            (buf c-string)
+            (buf (* char))
             (len size-t)))
 
 ;; (define-alien-routine ("mg_str" str) str
 ;;   (s c-string))
+
+(defun str->lisp (s)
+  "Convert a Mongoose `mg_str' into a freshly allocated Lisp string."
+  (let* ((len (slot s 'len))
+         (buf (slot s 'buf))
+         (stream (make-string-output-stream)))
+    (loop :for i fixnum :from 0 :below len
+          :do (write-char (code-char (deref buf i)) stream))
+    (get-output-stream-string stream)))
 
 ;; --- DNS --- ;;
 
@@ -171,3 +180,10 @@
   (url c-string)
   (fn (* (function void (* connection) int (* t)))) ;; mg_event_handler_t
   (fn-data (* t)))
+
+(define-alien-routine ("mg_http_reply" http-reply) void
+  "Form an HTTP response."
+  (c (* connection))
+  (status-code int)
+  (headers c-string)
+  (body c-string))
