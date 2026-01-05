@@ -93,11 +93,11 @@
             (send iobuf)
             (prof iobuf)
             (rtls iobuf)
-            ;; Function pointer.
-            (fn (* t))
+            ;; mg_event_handler_t
+            (fn (* (function void (* (struct connection)) int (* t))))
             (fn-data (* t))
-            ;; Function pointer.
-            (pfn (* t))
+            ;; mg_event_handler_t
+            (pn (* (function void (* (struct connection)) int (* t))))
             (pfn-data (* t))
             (data (array char 32))
             (tls (* t))
@@ -164,3 +164,10 @@
   (c    (* connection))
   (hm   (* http-message))
   (opts (* http-serve-opts)))
+
+(define-alien-routine ("mg_http_listen" http-listen) (* connection)
+  "Listen for incoming HTTP requests on the given IP/PORT."
+  (mgr (* mgr))
+  (url c-string)
+  (fn (* (function void (* connection) int (* t)))) ;; mg_event_handler_t
+  (fn-data (* t)))
