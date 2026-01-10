@@ -10,6 +10,7 @@
 #+sbcl
 (define-alien-callable ev-handler void ((c (* connection)) (ev int) (ev-data (* t)))
   "Handle HTTP events."
+  (declare (optimize (speed 3)))
   (when (= ev +ev-http-msg+)
     (let* ((hm  (cast ev-data (* http-message)))
            (uri (str->lisp (slot hm 'uri))))
@@ -17,7 +18,7 @@
       ;; (format t "METHOD: '~a'~%" (str->lisp (slot hm 'method)))
       ;; (format t "URI: '~a'~%" uri)
       ;; (format t "QUERY: '~a'~%" (str->lisp (slot hm 'query)))
-      (incf *requests*)
+      ;; (incf *requests*)
       (cond
         #+nil
         ((string= "/foo" uri)
@@ -39,6 +40,21 @@
            (with-alien ((opts (struct http-serve-opts)))
              (setf (slot opts 'root-dir) "/home/colin/code/common-lisp/mongoose/")
              (http-serve-dir c hm (addr opts))))))))
+
+#+sbcl
+(defun normal ()
+  (with-alien ((mgr (struct mgr)))
+    (mgr-init (addr mgr))
+    (format t "Establishing handler...~%")
+    (let ((handler (alien-sap (alien-callable-function 'ev-handler))))
+      (http-listen (addr mgr) "http://localhost:8000" handler nil))
+    (format t "Waiting for requests...~%")
+    (loop (mgr-poll (addr mgr) 1000))
+    (format t "Exiting~%")
+    (mgr-free (addr mgr))))
+
+#+nil
+(normal)
 
 #+nil
 (with-alien ((mgr (struct mgr)))
