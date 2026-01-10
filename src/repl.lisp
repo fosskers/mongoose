@@ -1,5 +1,7 @@
 (in-package :mongoose)
 
+(defparameter +content-type-html+ (format nil "Content-Type: text/html; charset=utf-8~c~%" #\return))
+
 ;; NOTE: 2026-01-06 `define-alien-callable' is very powerful! Even when its
 ;; associated `alien-callable-function' is actually being used as a callback in
 ;; a live loop (see below), I can still edit this Lisp, recompile it, and the
@@ -9,18 +11,31 @@
   (when (= ev +ev-http-msg+)
     (let* ((hm  (cast ev-data (* http-message)))
            (uri (str->lisp (slot hm 'uri))))
-      (format t "METHOD: '~a'~%" (str->lisp (slot hm 'method)))
-      (format t "URI: '~a'~%" uri)
-      (format t "QUERY: '~a'~%" (str->lisp (slot hm 'query)))
-      (cond ((equal "/foo" uri)
-             (format t "Route matching!~%")
-             (http-reply c 200
-                         (format nil "Content-Type: text/plain~c~%" #\return)
-                         "Hello, Jack!"))
-            (t (format t "Serve the filesystem~%")
-               (with-alien ((opts (struct http-serve-opts)))
-                 (setf (slot opts 'root-dir) "/home/colin/code/common-lisp/mongoose/")
-                 (http-serve-dir c hm (addr opts))))))))
+      ;; (format t "-------------------------------------------~%")
+      ;; (format t "METHOD: '~a'~%" (str->lisp (slot hm 'method)))
+      ;; (format t "URI: '~a'~%" uri)
+      ;; (format t "QUERY: '~a'~%" (str->lisp (slot hm 'query)))
+      (cond
+        #+nil
+        ((string= "/foo" uri)
+         (format t "Route matching!~%")
+         (http-reply c 200
+                     (format nil "Content-Type: text/plain~c~%" #\return)
+                     "Hello, Jack!"))
+        ((string= "/html" uri)
+         ;; (format t "Serving HTML.~%")
+         (http-reply c 200
+                     +content-type-html+
+                     (html:html (:raw "<!DOCTYPE html>")
+                                (:html
+                                 (:head (:meta :charset "utf-8"))
+                                 (:body (:div :id "foo"
+                                              :class "bar"
+                                              (:span "hello")))))))
+        (t (format t "Serve the filesystem~%")
+           (with-alien ((opts (struct http-serve-opts)))
+             (setf (slot opts 'root-dir) "/home/colin/code/common-lisp/mongoose/")
+             (http-serve-dir c hm (addr opts))))))))
 
 #+nil
 (with-alien ((mgr (struct mgr)))
@@ -33,4 +48,10 @@
   (format t "Exiting~%")
   (mgr-free (addr mgr)))
 
-;; TODO: 2026-01-06 I can make simple replies now. Next try serving some HTML.
+#+nil
+(html:html (:raw "<!DOCTYPE html>")
+           (:html
+            (:head (:meta :charset "utf-8"))
+            (:body (:div :id "foo"
+                         :class "bar"
+                         (:span "hello")))))
