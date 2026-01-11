@@ -18,7 +18,7 @@
       ;; (format t "METHOD: '~a'~%" (str->lisp (slot hm 'method)))
       ;; (format t "URI: '~a'~%" uri)
       ;; (format t "QUERY: '~a'~%" (str->lisp (slot hm 'query)))
-      ;; (incf *requests*)
+      (incf *requests*)
       (cond
         #+nil
         ((string= "/foo" uri)
@@ -67,6 +67,24 @@
   (format t "Exiting~%")
   (mgr-free (addr mgr)))
 
+#+sbcl
+(defun counted ()
+  (with-alien ((mgr (struct mgr)))
+    (setf *requests* 0)
+    (mgr-init (addr mgr))
+    (format t "Establishing handler...~%")
+    (let ((handler (alien-sap (alien-callable-function 'ev-handler))))
+      (http-listen (addr mgr) "http://localhost:8000" handler nil))
+    (format t "Waiting for requests...~%")
+    (loop :while (< *requests* 80000)
+          :do (mgr-poll (addr mgr) 1000))
+    (format t "Exiting~%")
+    (mgr-free (addr mgr))))
+
+#+nil
+(sb-sprof:with-profiling (:max-samples 100000 :sample-interval 0.0001 :report :graph)
+  (counted))
+
 #+nil
 (sb-sprof:with-profiling (:max-samples 100000 :sample-interval 0.001 :report :graph)
   (with-alien ((mgr (struct mgr)))
@@ -91,3 +109,17 @@
 
 #+nil
 (require :sb-sprof)
+
+;; --- ECL --- ;;
+
+(progn
+  (setf c:*user-linker-libs*  "-lmongoose")
+  (asdf:load-system :mongoose :force t))
+
+#+nil
+(ffi:with-foreign-object (mgr 'mgr)
+  (mgr-init mgr)
+  (describe mgr)
+  (format t "~a~%" (ffi:get-slot-value mgr 'mgr 'dnstimeout))
+  (mgr-free mgr))
+

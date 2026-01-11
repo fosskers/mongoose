@@ -3,9 +3,10 @@
   :author "Colin Woodbury <colin@fosskers.ca>"
   :license "GPL-2.0"
   :homepage "https://github.com/fosskers/mongoose"
-  :depends-on (:trivial-garbage)
+  :depends-on ()
   :serial t
   :components ((:module "src"
                 :components ((:file "package")
-                             (:file "sbcl" :if-feature :sbcl))))
+                             (:file "sbcl" :if-feature :sbcl)
+                             (:file "ecl" :if-feature :ecl))))
   :description "Bindings to the Mongoose webserver.")
