@@ -3,6 +3,8 @@
 (defparameter +content-type-html+ (format nil "Content-Type: text/html; charset=utf-8~c~%" #\return))
 (defparameter *requests* 0)
 
+;; --- SBCL --- ;;
+
 ;; NOTE: 2026-01-06 `define-alien-callable' is very powerful! Even when its
 ;; associated `alien-callable-function' is actually being used as a callback in
 ;; a live loop (see below), I can still edit this Lisp, recompile it, and the
@@ -37,9 +39,10 @@
                                               :class "bar"
                                               (:span "hello")))))))
         (t (format t "Serve the filesystem~%")
-           (with-alien ((opts (struct http-serve-opts)))
+           (let ((opts (make-alien http-serve-opts)))
              (setf (slot opts 'root-dir) "/home/colin/code/common-lisp/mongoose/")
-             (http-serve-dir c hm (addr opts))))))))
+             (http-serve-dir c hm opts)
+             (free-alien opts)))))))
 
 #+sbcl
 (defun normal ()
@@ -69,17 +72,21 @@
 
 #+sbcl
 (defun counted ()
-  (with-alien ((mgr (struct mgr)))
+  (let ((mgr (make-alien mgr)))
     (setf *requests* 0)
-    (mgr-init (addr mgr))
+    (mgr-init mgr)
     (format t "Establishing handler...~%")
     (let ((handler (alien-sap (alien-callable-function 'ev-handler))))
-      (http-listen (addr mgr) "http://localhost:8000" handler nil))
+      (http-listen mgr "http://localhost:8000" handler nil))
     (format t "Waiting for requests...~%")
     (loop :while (< *requests* 80000)
-          :do (mgr-poll (addr mgr) 1000))
+          :do (mgr-poll mgr 1000))
     (format t "Exiting~%")
-    (mgr-free (addr mgr))))
+    (mgr-free mgr)
+    (free-alien mgr)))
+
+#+sbcl
+(require :sb-sprof)
 
 #+nil
 (sb-sprof:with-profiling (:max-samples 100000 :sample-interval 0.0001 :report :graph)
@@ -107,13 +114,11 @@
                          :class "bar"
                          (:span "hello")))))
 
-#+nil
-(require :sb-sprof)
-
 ;; --- ECL --- ;;
 
+#+ecl
 (progn
-  (setf c:*user-linker-libs*  "-lmongoose")
+  (setf c:*user-linker-libs* "-lmongoose")
   (asdf:load-system :mongoose :force t))
 
 #+nil
@@ -123,3 +128,31 @@
   (format t "~a~%" (ffi:get-slot-value mgr 'mgr 'dnstimeout))
   (mgr-free mgr))
 
+#+ecl
+(ffi:defcallback ev-handler :void ((c :pointer-void) (ev :int32-t) (ev-data :pointer-void))
+  (when (= ev +ev-http-msg+)
+    (ffi:with-cast-pointer (hm ev-data '(* http-message))
+      ;; (format t "Serve the filesystem!~%")
+      (ffi:with-foreign-object (opts 'http-serve-opts)
+        (let* ((octets (ext:string-to-octets "/home/colin/code/common-lisp/mongoose/" :null-terminate t))
+               (ctext  (si:make-foreign-data-from-array octets)))
+          (setf (ffi:get-slot-value opts 'http-serve-opts 'root-dir) ctext))
+        (http-serve-dir c hm opts)))))
+
+#+nil
+(ffi:with-foreign-object (mgr 'mgr)
+  (mgr-init mgr)
+  (let ((handler (ffi:callback 'ev-handler)))
+    (http-listen mgr "http://localhost:8000" handler (ffi:make-null-pointer :pointer-void)))
+  (format t "Waiting for requests...~%")
+  (loop (mgr-poll mgr 1000))
+  (format t "Exiting~%")
+  (mgr-free mgr))
+
+;; TODO: 2026-01-11 Start here. It's quite slow, and the wrong path is being
+;; set. It's only recognizing the first character, /. Wasn't something weird
+;; like this happening with strings and ECL before? Something about it only
+;; taking the first char?
+;;
+;; Okay I pulled some old string conversion code from Raylib, and that gets me
+;; further, but now it's segfaulting.
