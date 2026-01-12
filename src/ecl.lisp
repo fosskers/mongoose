@@ -3,7 +3,8 @@
 ;; NOTE: 2026-01-11 Necessary or else the `def-function' bindings below won't
 ;; work. Note also that if you want to define a new function binding and quickly
 ;; test it, just rerun the special `load-system' call found in `repl.lisp'. It
-;; seems to do the linking correctly, whereas a normal C-c C-c will not.
+;; seems to do the linking correctly, whereas a normal C-c C-c will not. It will
+;; also catch arity errors, etc.; it isn't just a blind "bind and pray" process.
 (ffi:clines "#include <mongoose.h>")
 
 ;; --- STRINGS --- ;;
@@ -60,7 +61,7 @@
     ((mgr (* mgr)))
   :returning :void)
 
-(ffi:def-function ("mg_mgr_poll" mgr-pool)
+(ffi:def-function ("mg_mgr_poll" mgr-poll)
     ((mgr (* mgr))
      (ms :int32-t))
   :returning :void)
@@ -86,9 +87,11 @@
   (send iobuf)
   (prof iobuf)
   (rtls iobuf)
-  (fn :pointer-void) ; TODO
+  ;; HACK: It's actually a function pointer.
+  (fn :pointer-void)
   (fn-data :pointer-void)
-  (pn :pointer-void) ; TODO
+  ;; HACK: It's actually a function pointer.
+  (pn :pointer-void)
   (pfn-data :pointer-void)
   (data (:array :char 32))
   (tls :pointer-void)
@@ -96,3 +99,56 @@
   (flags :uint32-t))
 
 ;; --- HTTP --- ;;
+
+(ffi:def-struct http-header
+    (name str)
+  (value str))
+
+(ffi:def-struct http-message
+    (method str)
+  (uri str)
+  (query str)
+  (proto str)
+  (headers (:array http-header 30))
+  (body str)
+  (head str)
+  (message str))
+
+(ffi:def-struct http-serve-opts
+    ;; NOTE: 2025-12-31 Avoid double dots within paths.
+    ;; This is a warning from the Mongoose docs.
+    (root-dir :cstring)
+  (ssi-pattern :cstring)
+  (extra-headers :cstring)
+  (mime-types :cstring)
+  (page404 :cstring)
+  ;; mg_fs
+  ;;
+  ;; Filesystem implementation - NULL for POSIX.
+  (fs :pointer-void))
+
+#+nil
+(ffi:with-foreign-object (opts 'http-serve-opts)
+  (format t "~a~%" (ffi:get-slot-value opts 'http-serve-opts 'root-dir))
+  (setf (ffi:get-slot-value opts 'http-serve-opts 'root-dir) "/home/colin/code/common-lisp/mongoose/")
+  (format t "~a~%" (ffi:get-slot-value opts 'http-serve-opts 'root-dir)))
+
+(ffi:def-function ("mg_http_serve_dir" http-serve-dir)
+    ((c    (* connection))
+     (hm   (* http-message))
+     (opts (* http-serve-opts)))
+  :returning :void)
+
+(ffi:def-function ("mg_http_listen" http-listen)
+    ((mgr (* mgr))
+     (url :cstring)
+     ;; HACK: It's actually a function pointer.
+     (fn :pointer-void)
+     (fn-data :pointer-void)))
+
+(ffi:def-function ("mg_http_reply" http-reply)
+    ((c (* connection))
+     (status-code :int32-t)
+     (headers :cstring)
+     (body :cstring))
+  :returning :void)
