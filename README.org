@@ -19,6 +19,9 @@ entirely self-contained.
     - [[#logging][Logging]]
   - [[#http-client][HTTP Client]]
 - [[#performance][Performance]]
+  - [[#measurements][Measurements]]
+  - [[#tips][Tips]]
+    - [[#make-alien-vs-with-alien][=make-alien= vs =with-alien=]]
 - [[#related-work][Related Work]]
 
 * Compatibility
@@ -49,6 +52,10 @@ are now dashes (e.g. =mg_http_serve_dir -> http-serve-dir=).
 =(in-package :mongoose)= has been used for brevity in the examples below, but it's
 assumed that you'll use a package nickname in your own code, perhaps =mg=.
 
+Note also that for simplicity, no higher level Lisp API has been provided on top
+of Mongoose itself. We will occasionally be using FFI primitives directly, but
+you will see that this is not a stressful activity.
+
 ** HTTP Server
 
 *** Handlers
@@ -61,6 +68,8 @@ assumed that you'll use a package nickname in your own code, perhaps =mg=.
 ** HTTP Client
 
 * Performance
+
+** Measurements
 
 See =sample.c= for a trivial baseline server and =repl.lisp= for its Common Lisp
 analogue. The following command:
@@ -80,6 +89,10 @@ only attempt to optimize either code was to disable logging.
 There are some string-related inefficiencies in the Lisp that could easily be
 worked around in production code, thus I am willing to claim that for practical
 purposes the FFI can be trusted not to introduce undue overhead.
+
+** Tips
+
+*** =make-alien= vs =with-alien=
 
 * Related Work
 
