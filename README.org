@@ -4,11 +4,15 @@ This library contains Common Lisp bindings to the [[https://mongoose.ws][Mongoos
 library written in C. Internally Mongoose is event based and so can handle
 decent concurrent load, but it is otherwise single-threaded in nature.
 
-This library has no Common Lisp dependencies, and Mongoose itself is also
-entirely self-contained.
+This library has no Common Lisp dependencies, and Mongoose itself by default
+only requires =openssl=.
 
 * Table of Contents :TOC_5_gh:noexport:
 - [[#compatibility][Compatibility]]
+- [[#installation][Installation]]
+  - [[#arch-linux][Arch Linux]]
+  - [[#macos][MacOS]]
+  - [[#from-source][From Source]]
 - [[#usage][Usage]]
   - [[#http-server][HTTP Server]]
     - [[#handlers][Handlers]]
@@ -43,6 +47,32 @@ load. Currently only SBCL is supported.
 | Allegro   | ❌        |
 | LispWorks | ❌        |
 
+* Installation
+
+This library requires Mongoose to be available on your system.
+
+** Arch Linux
+
+Mongoose is available from [[https://aur.archlinux.org/packages/mongoose][the AUR]].
+
+#+begin_example
+aura -A mongoose
+#+end_example
+
+** MacOS
+
+Mongoose is available [[https://formulae.brew.sh/formula/mongoose][with Homebrew]].
+
+#+begin_example
+brew install mongoose
+#+end_example
+
+** From Source
+
+By design Mongoose is simple and has no complex build process. Simply [[https://github.com/cesanta/mongoose/][acquire
+its source code]], compile a =.so=, and make it available as
+=/usr/lib/libmongoose.so=.
+
 * Usage
 
 See also the official [[https://mongoose.ws/documentation][Mongoose Documentation]].
@@ -65,6 +95,11 @@ you will see that this is not a stressful activity.
 *** Routing
 *** Query Parameters
 *** HTML
+
+You're free to use any HTML library you wish, provided it eventually yields a
+concrete string to pass through the FFI. For a solution with zero transitive
+dependencies, consider [[https://github.com/fosskers/html][html]].
+
 *** Headers
 *** TLS (HTTPS)
 *** Logging

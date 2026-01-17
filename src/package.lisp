@@ -12,14 +12,6 @@
 #+sbcl
 (load-shared-objects)
 
-#+ecl
-(defun load-shared-objects ()
-  "Dynamically load the necessary `.so' file."
-  (ffi:load-foreign-library #p"/usr/lib/libmongoose.so"))
-
-#+ecl
-(load-shared-objects)
-
 ;; --- EVENTS --- ;;
 
 (defconstant +ev-error+ 0)
