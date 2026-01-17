@@ -5,6 +5,9 @@
 
 ;; --- SBCL --- ;;
 
+#+sbcl
+(require :sb-sprof)
+
 ;; NOTE: 2026-01-06 `define-alien-callable' is very powerful! Even when its
 ;; associated `alien-callable-function' is actually being used as a callback in
 ;; a live loop (see below), I can still edit this Lisp, recompile it, and the
@@ -16,20 +19,8 @@
   (when (= ev +ev-http-msg+)
     (let* ((hm  (cast ev-data (* http-message)))
            (uri (str->lisp (slot hm 'uri))))
-      ;; (format t "-------------------------------------------~%")
-      ;; (format t "METHOD: '~a'~%" (str->lisp (slot hm 'method)))
-      ;; (format t "URI: '~a'~%" uri)
-      ;; (format t "QUERY: '~a'~%" (str->lisp (slot hm 'query)))
-      (incf *requests*)
       (cond
-        #+nil
-        ((string= "/foo" uri)
-         (format t "Route matching!~%")
-         (http-reply c 200
-                     (format nil "Content-Type: text/plain~c~%" #\return)
-                     "Hello, Jack!"))
         ((string= "/html" uri)
-         ;; (format t "Serving HTML.~%")
          (http-reply c 200
                      +content-type-html+
                      (html:html (:raw "<!DOCTYPE html>")
@@ -44,67 +35,17 @@
              (http-serve-dir c hm opts)
              (free-alien opts)))))))
 
-#+sbcl
-(defun normal ()
-  (with-alien ((mgr (struct mgr)))
-    (mgr-init (addr mgr))
-    (format t "Establishing handler...~%")
-    (let ((handler (alien-sap (alien-callable-function 'ev-handler))))
-      (http-listen (addr mgr) "http://localhost:8000" handler nil))
-    (format t "Waiting for requests...~%")
-    (loop (mgr-poll (addr mgr) 1000))
-    (format t "Exiting~%")
-    (mgr-free (addr mgr))))
-
 #+nil
-(normal)
-
-#+nil
-(with-alien ((mgr (struct mgr)))
-  (mgr-init (addr mgr))
+(let ((mgr (make-alien mgr)))
+  (mgr-init mgr)
   (format t "Establishing handler...~%")
   (let ((handler (alien-sap (alien-callable-function 'ev-handler))))
-    (http-listen (addr mgr) "http://localhost:8000" handler nil))
+    (http-listen mgr "http://localhost:8000" handler nil))
   (format t "Waiting for requests...~%")
-  (loop (mgr-poll (addr mgr) 1000))
+  (loop (mgr-poll mgr 1000))
   (format t "Exiting~%")
-  (mgr-free (addr mgr)))
-
-#+sbcl
-(defun counted ()
-  (let ((mgr (make-alien mgr)))
-    (setf *requests* 0)
-    (mgr-init mgr)
-    (format t "Establishing handler...~%")
-    (let ((handler (alien-sap (alien-callable-function 'ev-handler))))
-      (http-listen mgr "http://localhost:8000" handler nil))
-    (format t "Waiting for requests...~%")
-    (loop :while (< *requests* 80000)
-          :do (mgr-poll mgr 1000))
-    (format t "Exiting~%")
-    (mgr-free mgr)
-    (free-alien mgr)))
-
-#+sbcl
-(require :sb-sprof)
-
-#+nil
-(sb-sprof:with-profiling (:max-samples 100000 :sample-interval 0.0001 :report :graph)
-  (counted))
-
-#+nil
-(sb-sprof:with-profiling (:max-samples 100000 :sample-interval 0.001 :report :graph)
-  (with-alien ((mgr (struct mgr)))
-    (setf *requests* 0)
-    (mgr-init (addr mgr))
-    (format t "Establishing handler...~%")
-    (let ((handler (alien-sap (alien-callable-function 'ev-handler))))
-      (http-listen (addr mgr) "http://localhost:8000" handler nil))
-    (format t "Waiting for requests...~%")
-    (loop :while (< *requests* 100000)
-          :do (mgr-poll (addr mgr) 1000))
-    (format t "Exiting~%")
-    (mgr-free (addr mgr))))
+  (mgr-free mgr)
+  (free-alien mgr))
 
 #+nil
 (html:html (:raw "<!DOCTYPE html>")
@@ -115,6 +56,8 @@
                          (:span "hello")))))
 
 ;; --- ECL --- ;;
+
+;; NOTE: 2026-01-17 Paused as of this date.
 
 #+ecl
 (progn
@@ -149,10 +92,10 @@
   (format t "Exiting~%")
   (mgr-free mgr))
 
-;; TODO: 2026-01-11 Start here. It's quite slow, and the wrong path is being
-;; set. It's only recognizing the first character, /. Wasn't something weird
-;; like this happening with strings and ECL before? Something about it only
-;; taking the first char?
+;; TODO: 2026-01-11 If continuing with ECL, start here. It's quite slow, and the
+;; wrong path is being set. It's only recognizing the first character, /. Wasn't
+;; something weird like this happening with strings and ECL before? Something
+;; about it only taking the first char?
 ;;
 ;; Okay I pulled some old string conversion code from Raylib, and that gets me
 ;; further, but now it's segfaulting.

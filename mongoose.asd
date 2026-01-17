@@ -7,6 +7,5 @@
   :serial t
   :components ((:module "src"
                 :components ((:file "package")
-                             (:file "sbcl" :if-feature :sbcl)
-                             (:file "ecl" :if-feature :ecl))))
+                             (:file "sbcl" :if-feature :sbcl))))
   :description "Bindings to the Mongoose webserver.")
