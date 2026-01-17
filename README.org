@@ -1,10 +1,64 @@
 #+title: Mongoose
 
 This library contains Common Lisp bindings to the [[https://mongoose.ws][Mongoose]] web server / client
-library written in C.
+library written in C. Internally Mongoose is event based and so can handle
+decent concurrent load, but it is otherwise single-threaded in nature.
 
 This library has no Common Lisp dependencies, and Mongoose itself is also
 entirely self-contained.
+
+* Table of Contents :TOC_5_gh:noexport:
+- [[#compatibility][Compatibility]]
+- [[#usage][Usage]]
+  - [[#http-server][HTTP Server]]
+    - [[#handlers][Handlers]]
+    - [[#serving-static-files][Serving Static Files]]
+    - [[#routing][Routing]]
+    - [[#html][HTML]]
+    - [[#tls-https][TLS (HTTPS)]]
+    - [[#logging][Logging]]
+  - [[#http-client][HTTP Client]]
+- [[#performance][Performance]]
+- [[#related-work][Related Work]]
+
+* Compatibility
+
+The FFI bindings are hand-written for maximum performance and minimum dependency
+load. Currently only SBCL is supported.
+
+| Compiler  | Compiles? |
+|-----------+-----------|
+| SBCL      | ✅        |
+| ECL       | ❌        |
+| Clasp     | ❌        |
+| ABCL      | ❌        |
+| CCL       | ❌        |
+| Clisp     | ❌        |
+|-----------+-----------|
+| Allegro   | ❌        |
+| LispWorks | ❌        |
+
+* Usage
+
+See also the official [[https://mongoose.ws/documentation][Mongoose Documentation]].
+
+As a rule, the functions and types provided here have the same names as their
+underlying C ones, except that the =mg_= prefix has been stripped and underscores
+are now dashes (e.g. =mg_http_serve_dir -> http-serve-dir=).
+
+=(in-package :mongoose)= has been used for brevity in the examples below, but it's
+assumed that you'll use a package nickname in your own code, perhaps =mg=.
+
+** HTTP Server
+
+*** Handlers
+*** Serving Static Files
+*** Routing
+*** HTML
+*** TLS (HTTPS)
+*** Logging
+
+** HTTP Client
 
 * Performance
 
@@ -22,6 +76,12 @@ only attempt to optimize either code was to disable logging.
 |----------+---------------------|
 | Lisp     |               23600 |
 | C        |               25000 |
+
+There are some string-related inefficiencies in the Lisp that could easily be
+worked around in production code, thus I am willing to claim that for practical
+purposes the FFI can be trusted not to introduce undue overhead.
+
+* Related Work
 
 
 
