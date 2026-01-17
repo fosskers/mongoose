@@ -42,3 +42,12 @@
 (defconstant +ev-mqtt-time+ 17)
 (defconstant +ev-wakeup+ 18)
 (defconstant +ev-user+ 19)
+
+;; --- LOGGING --- ;;
+
+;; enum { MG_LL_NONE, MG_LL_ERROR, MG_LL_INFO, MG_LL_DEBUG, MG_LL_VERBOSE };
+(defconstant +ll-none+ 0)
+(defconstant +ll-error+ 1)
+(defconstant +ll-info+ 2)
+(defconstant +ll-debug+ 3)
+(defconstant +ll-verbose+ 4)

@@ -16,11 +16,11 @@ echo "GET http://localhost:8000/html" | vegeta attack -duration=10s -rate=0 -max
 #+end_example
 
 produces these results on my 2018 ThinkPad (I write this in January 2026). The
-only attempt to optimize the C was to disable logging.
+only attempt to optimize either code was to disable logging.
 
 | Language | Requests-per-Second |
 |----------+---------------------|
-| Lisp     |               18050 |
+| Lisp     |               23600 |
 | C        |               25000 |
 
 

@@ -189,3 +189,7 @@
   (status-code int)
   (headers c-string)
   (body c-string))
+
+;; --- LOGGING --- ;;
+
+(define-alien-variable ("mg_log_level" log-level) int)

@@ -35,6 +35,7 @@
 
 #+nil
 (let ((mgr (make-alien mgr)))
+  (setf log-level +ll-error+)
   (mgr-init mgr)
   (format t "Establishing handler...~%")
   (let ((handler (alien-sap (alien-callable-function 'ev-handler))))
