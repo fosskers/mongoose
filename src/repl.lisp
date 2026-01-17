@@ -26,9 +26,7 @@
                      (html:html (:raw "<!DOCTYPE html>")
                                 (:html
                                  (:head (:meta :charset "utf-8"))
-                                 (:body (:div :id "foo"
-                                              :class "bar"
-                                              (:span "hello")))))))
+                                 (:body "hello")))))
         (t (format t "Serve the filesystem~%")
            (let ((opts (make-alien http-serve-opts)))
              (setf (slot opts 'root-dir) "/home/colin/code/common-lisp/mongoose/")

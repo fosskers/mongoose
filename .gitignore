@@ -1,4 +1,8 @@
+# Lisp
 vendored/
 *.fasl
 *.fas
+
+# C
 mongoose.c
+a.out

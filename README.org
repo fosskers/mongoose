@@ -1,0 +1,30 @@
+#+title: Mongoose
+
+This library contains Common Lisp bindings to the [[https://mongoose.ws][Mongoose]] web server / client
+library written in C.
+
+This library has no Common Lisp dependencies, and Mongoose itself is also
+entirely self-contained.
+
+* Performance
+
+See =sample.c= for a trivial baseline server and =repl.lisp= for its Common Lisp
+analogue. The following command:
+
+#+begin_example
+echo "GET http://localhost:8000/html" | vegeta attack -duration=10s -rate=0 -max-workers=4 | tee results.bin | vegeta report
+#+end_example
+
+produces these results on my 2018 ThinkPad (I write this in January 2026). The
+only attempt to optimize the C was to disable logging.
+
+| Language | Requests-per-Second |
+|----------+---------------------|
+| Lisp     |               18050 |
+| C        |               25000 |
+
+
+
+
+
+
