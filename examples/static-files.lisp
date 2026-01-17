@@ -5,6 +5,8 @@
 (define-alien-callable ev-handler void ((c (* connection)) (ev int) (ev-data (* t)))
   "Handle HTTP events."
   (when (= ev +ev-http-msg+)
+    ;; NOTE The `ev-data' comes in "naked", so we must do a pointer cast (this
+    ;; is free) to the real type we require.
     (let ((hm   (cast ev-data (* http-message)))
           (opts (make-alien http-serve-opts)))
       (setf (slot opts 'root-dir) ".")

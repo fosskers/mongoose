@@ -14,7 +14,9 @@ entirely self-contained.
     - [[#handlers][Handlers]]
     - [[#serving-static-files][Serving Static Files]]
     - [[#routing][Routing]]
+    - [[#query-parameters][Query Parameters]]
     - [[#html][HTML]]
+    - [[#headers][Headers]]
     - [[#tls-https][TLS (HTTPS)]]
     - [[#logging][Logging]]
   - [[#http-client][HTTP Client]]
@@ -61,7 +63,9 @@ you will see that this is not a stressful activity.
 *** Handlers
 *** Serving Static Files
 *** Routing
+*** Query Parameters
 *** HTML
+*** Headers
 *** TLS (HTTPS)
 *** Logging
 

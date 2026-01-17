@@ -7,9 +7,6 @@
             (buf (* char))
             (len size-t)))
 
-;; (define-alien-routine ("mg_str" str) str
-;;   (s c-string))
-
 (declaim (ftype (function ((alien str)) (simple-array character (*))) str->lisp))
 (defun str->lisp (s)
   "Convert a Mongoose `mg_str' into a freshly allocated Lisp string."
