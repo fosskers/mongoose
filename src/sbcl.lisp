@@ -7,17 +7,6 @@
             (buf (* char))
             (len size-t)))
 
-(declaim (ftype (function ((alien str)) (simple-array character (*))) str->lisp))
-(defun str->lisp (s)
-  "Convert a Mongoose `mg_str' into a freshly allocated Lisp string."
-  (declare (optimize (speed 3)))
-  (let* ((len (slot s 'len))
-         (buf (slot s 'buf))
-         (stream (make-string-output-stream)))
-    (loop :for i fixnum :from 0 :below len
-          :do (write-char (code-char (deref buf i)) stream))
-    (get-output-stream-string stream)))
-
 ;; --- DNS --- ;;
 
 (define-alien-type dns
@@ -190,3 +179,40 @@
 ;; --- LOGGING --- ;;
 
 (define-alien-variable ("mg_log_level" log-level) int)
+
+;; --- UTILITIES --- ;;
+
+(declaim (ftype (function ((alien str)) (simple-array character (*))) str->lisp))
+(defun str->lisp (s)
+  "Convert a Mongoose `mg_str' into a freshly allocated Lisp string."
+  (declare (optimize (speed 3)))
+  (let* ((len (slot s 'len))
+         (buf (slot s 'buf))
+         (stream (make-string-output-stream)))
+    (loop :for i fixnum :from 0 :below len
+          :do (write-char (code-char (deref buf i)) stream))
+    (get-output-stream-string stream)))
+
+(declaim (ftype (function (string) hash-table) string->params))
+(defun string->params (s)
+  "Split a Lisp string into a Hash Table of query params."
+  (let* ((ht (make-hash-table :test #'equal))
+         (pairs (string-split s :separator #\&)))
+    (dolist (pair pairs)
+      (let ((split (string-split pair :separator #\=)))
+        (when (= 2 (length split))
+          (setf (gethash (car split) ht) (cadr split)))))
+    ht))
+
+#+nil
+(string->params "foo=bar&baz=zoo")
+
+(declaim (ftype (function ((alien (* http-message))) (or null hash-table)) http-message->params))
+(defun http-message->params (hm)
+  "Extract all the query params as a Hash Table. NIL if none were present."
+  (let* ((str (slot hm 'query))
+         (len (slot str 'len)))
+    (declare (type fixnum len))
+    (when (> len 0)
+      (string->params (str->lisp str)))))
+
