@@ -1,4 +1,7 @@
 ;;; Match on a particular route.
+;;;
+;;; Note the usage of `str->lisp' to extract a Lisp string out of the underlying
+;;; Mongoose `mg_str' struct underneath.
 
 (in-package :mongoose)
 

@@ -86,22 +86,48 @@ assumed that you'll use a package nickname in your own code, perhaps =mg=.
 
 Note also that for simplicity, no higher level Lisp API has been provided on top
 of Mongoose itself. We will occasionally be using FFI primitives directly, but
-you will see that this is not a stressful activity.
+you will see that this is not a stressful activity. Some small helper functions
+have been provided where appropriate.
 
 ** HTTP Server
 
 *** Handlers
 *** Serving Static Files
+
+We get this for free via =http-serve-dir=.
+
+See [[file:examples/00-static-files.lisp]].
+
 *** Routing
+
+Keeping it simple, routing is a matter of extracting the =uri= field of a
+=http-message= and doing string matching on it.
+
+See [[file:examples/01-routing.lisp]].
+
 **** Query Parameters
+
+See [[file:examples/03-query-params.lisp]].
+
 *** HTML
 
 You're free to use any HTML library you wish, provided it eventually yields a
 concrete string to pass through the FFI. For a solution with zero transitive
 dependencies, consider [[https://github.com/fosskers/html][html]].
 
+See [[file:examples/02-html.lisp]].
+
 *** Headers
 *** TLS (HTTPS)
+
+#+begin_quote
+⚠ Coming soon! ⚠
+
+Not yet possible until the recent struct-by-value work in SBCL is released.
+Mongoose's TLS functions have one specific place, related to their internal
+string type, where this is necessary.
+#+end_quote
+
 *** Logging
 
 ** HTTP Client
@@ -134,9 +160,3 @@ purposes the FFI can be trusted not to introduce undue overhead.
 *** make-alien vs with-alien
 
 * Related Work
-
-
-
-
-
-
