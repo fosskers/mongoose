@@ -18,7 +18,7 @@ only requires =openssl=.
     - [[#handlers][Handlers]]
     - [[#serving-static-files][Serving Static Files]]
     - [[#routing][Routing]]
-    - [[#query-parameters][Query Parameters]]
+      - [[#query-parameters][Query Parameters]]
     - [[#html][HTML]]
     - [[#headers][Headers]]
     - [[#tls-https][TLS (HTTPS)]]
@@ -27,7 +27,7 @@ only requires =openssl=.
 - [[#performance][Performance]]
   - [[#measurements][Measurements]]
   - [[#tips][Tips]]
-    - [[#make-alien-vs-with-alien][=make-alien= vs =with-alien=]]
+    - [[#make-alien-vs-with-alien][make-alien vs with-alien]]
 - [[#related-work][Related Work]]
 
 * Compatibility
@@ -93,7 +93,7 @@ you will see that this is not a stressful activity.
 *** Handlers
 *** Serving Static Files
 *** Routing
-*** Query Parameters
+**** Query Parameters
 *** HTML
 
 You're free to use any HTML library you wish, provided it eventually yields a
@@ -131,7 +131,7 @@ purposes the FFI can be trusted not to introduce undue overhead.
 
 ** Tips
 
-*** =make-alien= vs =with-alien=
+*** make-alien vs with-alien
 
 * Related Work
 

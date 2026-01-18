@@ -18,7 +18,8 @@
            (uri (str->lisp (slot hm 'uri))))
       (cond
         ((string= "/foo" uri)
-         (http-reply c 200 *content-type-text* "Hello!"))))))
+         (http-reply c 200 *content-type-text* "Hello!"))
+        (t (http-reply c 404 nil ""))))))
 
 #+nil
 (let ((mgr (make-alien mgr)))

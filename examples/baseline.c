@@ -9,8 +9,7 @@ static void ev_handler(struct mg_connection *c, int ev, void *ev_data) {
                           "<!DOCTYPE html><html><head><meta "
                           "charset=\"utf-8\"></head><body>hello</body></html>");
         } else {
-            struct mg_http_serve_opts opts = {
-                .root_dir = "/home/colin/code/common-lisp/mongoose/"};
+            struct mg_http_serve_opts opts = {.root_dir = "."};
             mg_http_serve_dir(c, hm, &opts);
         }
     }

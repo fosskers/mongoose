@@ -19,7 +19,8 @@
                      (html:html (:raw "<!DOCTYPE html>")
                                 (:html
                                  (:head (:meta :charset "utf-8"))
-                                 (:body "hello")))))))))
+                                 (:body "hello")))))
+        (t (http-reply c 404 nil ""))))))
 
 #+nil
 (let ((mgr (make-alien mgr)))
