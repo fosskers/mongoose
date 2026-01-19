@@ -178,7 +178,7 @@
 
 ;; --- LOGGING --- ;;
 
-(define-alien-variable ("mg_log_level" log-level) int)
+(define-alien-variable ("mg_log_level" *log-level*) int)
 
 ;; --- UTILITIES --- ;;
 

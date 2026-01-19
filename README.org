@@ -18,7 +18,7 @@ only requires =openssl=.
     - [[#handlers][Handlers]]
     - [[#serving-static-files][Serving Static Files]]
     - [[#routing][Routing]]
-      - [[#query-parameters][Query Parameters]]
+    - [[#query-parameters][Query Parameters]]
     - [[#html][HTML]]
     - [[#headers][Headers]]
     - [[#tls-https][TLS (HTTPS)]]
@@ -105,7 +105,7 @@ Keeping it simple, routing is a matter of extracting the =uri= field of a
 
 See [[file:examples/01-routing.lisp]].
 
-**** Query Parameters
+*** Query Parameters
 
 See [[file:examples/03-query-params.lisp]].
 
@@ -129,6 +129,29 @@ string type, where this is necessary.
 #+end_quote
 
 *** Logging
+
+Mongoose does its own logging, which you will see if running an actual Lisp
+program (but not through the REPL). By default many messages are printed -
+enough to lower latency. To change this, simply alter the value of =*log-level*=.
+
+#+begin_src lisp
+(in-package :mongoose)
+
+(let ((mgr (make-alien mgr)))
+  (setf *log-level* +ll-error+)
+  (mgr-init mgr)
+  ;; ... etc. ...
+  (mgr-free mgr)
+  (free-alien mgr))
+#+end_src
+
+The available log levels are:
+
+- =+ll-none+=
+- =+ll-error+=
+- =+ll-info+=
+- =+ll-debug+= (the default)
+- =+ll-verbose+=
 
 ** HTTP Client
 
