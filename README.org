@@ -15,7 +15,7 @@ only requires =openssl=.
   - [[#from-source][From Source]]
 - [[#usage][Usage]]
   - [[#http-server][HTTP Server]]
-    - [[#handlers][Handlers]]
+    - [[#handlers-and-the-polling-loop][Handlers and the Polling Loop]]
     - [[#serving-static-files][Serving Static Files]]
     - [[#routing][Routing]]
     - [[#query-parameters][Query Parameters]]
@@ -91,7 +91,68 @@ have been provided where appropriate.
 
 ** HTTP Server
 
-*** Handlers
+*** Handlers and the Polling Loop
+
+I could have provided some macro-based =defhandler=, etc., but I realized that
+such an interface already exists: the FFI itself, which we will embrace in the
+spirit of minimalism.
+
+Mongoose operates in a single-threaded "polling loop".
+
+#+begin_src lisp
+(loop (mgr-poll mgr 1000))
+#+end_src
+
+Where =mgr= is an underlying [[https://mongoose.ws/documentation/#struct-mg_addr][mg_mgr]] you've already initialized, the 1000
+milliseconds is a timeout for accepting incoming connections, and =mgr-poll=
+itself is just a direct call to [[https://mongoose.ws/documentation/#mg_mgr_poll][mg_mgr_poll]].
+
+Your "main" will look something like this:
+
+#+begin_src lisp
+(let ((mgr (make-alien mgr)))
+  (mgr-init mgr)
+  (let ((handler (alien-sap (alien-callable-function 'ev-handler))))
+    (http-listen mgr "http://localhost:8000" handler nil))
+  (loop (mgr-poll mgr 1000))
+  (mgr-free mgr)
+  (free-alien mgr))
+#+end_src
+
+Of note:
+
+- =make-alien=: this initializes some memory that we immediately populate with
+  =mgr-init=.
+- =(alien-sap (alien-callable-function ...))=: Mongoose needs a C-level function
+  pointer to its main event handler, and this is how we produce one from the
+  Lisp side.
+
+But what is ='ev-handler= referring to? And how can we pass a pointer to a C
+function when we aren't writing C? The answer is =define-alien-callable=.
+
+#+begin_src lisp
+(define-alien-callable ev-handler void ((c (* connection)) (ev int) (ev-data (* t)))
+  "Handle HTTP events."
+  (when (= ev +ev-http-msg+)
+    (let ((hm (cast ev-data (* http-message))))
+      ;; Do whatever!
+      (foo hm))))
+#+end_src
+
+As you'll later see in the Examples, our handler will always take this basic
+shape. =define-alien-callable= enables us to write _whatever Lisp we want_ for our
+handler logic, and have C call into it. It even supports hot reloading as usual;
+our server can already be running, we can hot recompile just this handler, and
+the changes will be immediately reflected.
+
+You can see that the input and output types of the handler are C types. The =(*
+connection)= syntax (etc.) is provided by =sb-alien=, the main FFI module within
+SBCL. You can also see us doing a Pointer Cast via =cast= to get access to the
+request payload - this is standard practice with Mongoose.
+
+If you need access to the fields of C structs, use =slot= as can be seen in [[file:examples/01-routing.lisp][this
+example]]. 
+
 *** Serving Static Files
 
 We get this for free via =http-serve-dir=.
