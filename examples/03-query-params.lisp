@@ -14,7 +14,7 @@
 
 (in-package :mongoose)
 
-(defparameter *content-type-html* (format nil "Content-Type: text/html~c~c" #\return #\linefeed))
+(defparameter *headers* (headers '("Content-Type: text/html")))
 
 (define-alien-callable ev-handler void ((c (* connection)) (ev int) (ev-data (* t)))
   "Handle HTTP events."
@@ -35,7 +35,7 @@
                                                           (:ul ,@(loop :for k :being :the :hash-key
                                                                          :using (hash-value v) :of params
                                                                        :collect `(:li ,(format nil "~a: ~a" k v)))))))))))))
-           (http-reply c 200 *content-type-html* html)))
+           (http-reply c 200 *headers* html)))
         (t (http-reply c 404 nil ""))))))
 
 #+nil

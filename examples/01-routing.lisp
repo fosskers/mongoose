@@ -5,12 +5,7 @@
 
 (in-package :mongoose)
 
-;; NOTE Defining our header externally like this has two effects:
-;;
-;; 1. We only need to call `format' once, instead of per request.
-;; 2. With SBCL this produces a `simple-base-string', which the FFI can send to
-;;    C without any memory copying.
-(defparameter *content-type-text* (format nil "Content-Type: text/plain~c~c" #\return #\linefeed))
+(defparameter *headers* (headers '("Content-Type: text/plain")))
 
 (define-alien-callable ev-handler void ((c (* connection)) (ev int) (ev-data (* t)))
   "Handle HTTP events."
@@ -21,7 +16,7 @@
            (uri (str->lisp (slot hm 'uri))))
       (cond
         ((string= "/foo" uri)
-         (http-reply c 200 *content-type-text* "Hello!"))
+         (http-reply c 200 *headers* "Hello!"))
         (t (http-reply c 404 nil ""))))))
 
 #+nil

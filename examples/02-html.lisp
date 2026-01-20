@@ -5,7 +5,7 @@
 
 (in-package :mongoose)
 
-(defparameter *content-type-html* (format nil "Content-Type: text/html~c~c" #\return #\linefeed))
+(defparameter *headers* (headers '("Content-Type: text/html")))
 
 (define-alien-callable ev-handler void ((c (* connection)) (ev int) (ev-data (* t)))
   "Handle HTTP events."
@@ -14,8 +14,7 @@
            (uri (str->lisp (slot hm 'uri))))
       (cond
         ((string= "/foo" uri)
-         (http-reply c 200
-                     *content-type-html*
+         (http-reply c 200 *headers*
                      (html:html (:raw "<!DOCTYPE html>")
                                 (:html
                                  (:head (:meta :charset "utf-8"))
