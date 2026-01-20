@@ -1,10 +1,10 @@
 #+title: Mongoose
 
-This library contains Common Lisp bindings to the [[https://mongoose.ws][Mongoose]] web server / client
-library written in C. Internally Mongoose is event based and so can handle
-decent concurrent load, but it is otherwise single-threaded in nature.
+This library contains Common Lisp bindings to the [[https://mongoose.ws][Mongoose]] web server library
+written in C. Internally Mongoose is event based and so can handle decent
+concurrent load, but it is otherwise single-threaded in nature.
 
-This library has no Common Lisp dependencies, and Mongoose itself by default
+This library has no Common Lisp dependencies, and by default Mongoose itself
 only requires =openssl=.
 
 * Table of Contents :TOC_5_gh:noexport:
@@ -23,14 +23,14 @@ only requires =openssl=.
     - [[#headers][Headers]]
     - [[#tls-https][TLS (HTTPS)]]
     - [[#logging][Logging]]
-  - [[#http-client][HTTP Client]]
 - [[#performance][Performance]]
   - [[#measurements][Measurements]]
+- [[#further-work][Further Work]]
 - [[#see-also][See Also]]
 
 * Compatibility
 
-The FFI bindings are hand-written for maximum performance and minimum dependency
+The FFI bindings are hand-written to ensure minimal overhead and dependency
 load. Currently only SBCL is supported.
 
 | Compiler  | Compiles? |
@@ -86,6 +86,16 @@ Note also that for simplicity, no higher level Lisp API has been provided on top
 of Mongoose itself. We will occasionally be using FFI primitives directly, but
 you will see that this is not a stressful activity. Some small helper functions
 have been provided where appropriate.
+
+To run the examples, first:
+
+#+begin_src lisp
+(asdf:load-system :mongoose)
+(asdf:load-system :html)  ;; For examples that need it.
+#+end_src
+
+Then open the example you want to run, compile/load just that file, and execute
+its "main" through the REPL.
 
 ** HTTP Server
 
@@ -240,8 +250,6 @@ The available log levels are:
 - =+ll-debug+= (the default)
 - =+ll-verbose+=
 
-** HTTP Client
-
 * Performance
 
 ** Measurements
@@ -264,6 +272,15 @@ only attempt to optimize either code was to disable logging.
 There are some string-related inefficiencies in the Lisp that could easily be
 worked around in production code, thus I am willing to claim that for practical
 purposes the FFI can be trusted not to introduce undue overhead.
+
+* Further Work
+
+- [[https://mongoose.ws/documentation/#struct-mg_tls_opts][HTTPS]] bindings (coming soon to SBCL!)
+- [[https://mongoose.ws/documentation/tutorials/http/http-client/][HTTP Client functionality]].
+- [[https://mongoose.ws/documentation/tutorials/websocket/websocket-server/][WebSockets]] server functionality.
+
+[[https://mongoose.ws/documentation/#-api-reference][Anything else]] is essentially unplanned but will be considered if there is
+sufficient demand.
 
 * See Also
 

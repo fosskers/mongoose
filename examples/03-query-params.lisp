@@ -4,7 +4,7 @@
 ;;; instead when no params were given. This is more memory efficient than
 ;;; returning an empty Hash Table, especially during heavy traffic.
 ;;;
-;;; We can see the `html:expand' (instead of the static `html:html') function
+;;; We can see the function `html:expand' (instead of the static `html:html')
 ;;; being used here to dynamically inject content into the quoted HTML form. Yes
 ;;; this could be refactored to be prettier, but this demonstrates how quoted
 ;;; sections and expanded sections can be nested within one another.
