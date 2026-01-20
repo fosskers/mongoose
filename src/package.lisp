@@ -1,5 +1,17 @@
 (defpackage mongoose
   (:use :cl #+sbcl :sb-alien)
+  ;; --- Mongoose Types --- ;;
+  (:export #:str #:dns #:addr #:mgr #:iobuf #:connection
+           #:http-header #:http-message #:http-serve-opts)
+  ;; --- HTTP Functions --- ;;
+  (:export #:mgr-init #:mgr-free #:mgr-poll
+           #:http-serve-dir #:http-listen #:http-reply)
+  ;; --- Utilities --- ;;
+  (:export #:headers #:str->lisp #:string->params #:http-message->params)
+  ;; --- Events --- ;;
+  (:export #:+ev-error+ #:+ev-http-msg+)
+  ;; --- Logging --- ;;
+  (:export #:*log-level* #:+ll-none+ #:+ll-error+ #:+ll-info+ #:+ll-debug+ #:+ll-verbose+)
   (:documentation "Bindings to the Mongoose webserver."))
 
 (in-package :mongoose)
