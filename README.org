@@ -92,7 +92,7 @@ To run the examples, first:
 
 #+begin_src lisp
 (asdf:load-system :mongoose)
-(asdf:load-system :html)  ;; For examples that need it.
+(asdf:load-system :html)  ; For examples that need it.
 #+end_src
 
 Then open the example you want to run, compile/load just that file, and execute
