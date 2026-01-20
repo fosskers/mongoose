@@ -73,3 +73,15 @@ separator character."
 
 #+nil
 (string-split "bar=baz&foo=aaa&shrek=fiona" :separator #\&)
+
+(declaim (ftype (function (list) (simple-array character (*))) headers))
+(defun headers (list)
+  "Collate a list of headers into a single, Mongoose-compliant string."
+  (declare (optimize (speed 3)))
+  (with-output-to-string (stream)
+    (loop :for header :in list
+          :do (format stream "~a~c~c" header #\return #\linefeed))))
+
+#+nil
+(headers '("Content-Type: text/plain" "User-Agent: foo"))
+

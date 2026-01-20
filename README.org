@@ -26,9 +26,7 @@ only requires =openssl=.
   - [[#http-client][HTTP Client]]
 - [[#performance][Performance]]
   - [[#measurements][Measurements]]
-  - [[#tips][Tips]]
-    - [[#make-alien-vs-with-alien][make-alien vs with-alien]]
-- [[#related-work][Related Work]]
+- [[#see-also][See Also]]
 
 * Compatibility
 
@@ -145,13 +143,13 @@ handler logic, and have C call into it. It even supports hot reloading as usual;
 our server can already be running, we can hot recompile just this handler, and
 the changes will be immediately reflected.
 
-You can see that the input and output types of the handler are C types. The =(*
-connection)= syntax (etc.) is provided by =sb-alien=, the main FFI module within
+You can see that the input and output types of the handler are C types. The
+=(* connection)= syntax (etc.) is provided by =sb-alien=, the main FFI module within
 SBCL. You can also see us doing a Pointer Cast via =cast= to get access to the
 request payload - this is standard practice with Mongoose.
 
 If you need access to the fields of C structs, use =slot= as can be seen in [[file:examples/01-routing.lisp][this
-example]]. 
+example]].
 
 *** Serving Static Files
 
@@ -179,6 +177,34 @@ dependencies, consider [[https://github.com/fosskers/html][html]].
 See [[file:examples/02-html.lisp]].
 
 *** Headers
+
+It is a general requirement of HTTP that headers be postfixed by =\r\n=. For
+single headers you can do this yourself like so:
+
+#+begin_src lisp
+(defparameter *content-type-text* (format nil "Content-Type: text/plain~c~c" #\return #\linefeed))
+#+end_src
+
+And for multiple via the =headers= helper:
+
+#+begin_src lisp :exports both
+(in-package :mongoose)
+(headers '("Content-Type: text/plain" "User-Agent: foo"))
+#+end_src
+
+#+RESULTS:
+: Content-Type: text/plain
+: User-Agent: foo
+
+Either way, you're encouraged to preallocate common headers via a =defparameter=
+as shown above.
+
+If no headers are necessary, Mongoose also accepts =nil= (NULL in C).
+
+#+begin_src lisp
+(http-reply c 404 nil "")
+#+end_src
+
 *** TLS (HTTPS)
 
 #+begin_quote
@@ -239,8 +265,7 @@ There are some string-related inefficiencies in the Lisp that could easily be
 worked around in production code, thus I am willing to claim that for practical
 purposes the FFI can be trusted not to introduce undue overhead.
 
-** Tips
+* See Also
 
-*** make-alien vs with-alien
-
-* Related Work
+- [[https://github.com/fukamachi/woo][Woo]]: libev-based web server.
+- [[https://codeberg.org/shirakumo/radiance][Radiance]]: Full web application framework.
