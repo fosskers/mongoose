@@ -23,6 +23,7 @@ only requires =openssl=.
     - [[#headers][Headers]]
     - [[#tls-https][TLS (HTTPS)]]
     - [[#logging][Logging]]
+    - [[#error-handling][Error Handling]]
 - [[#performance][Performance]]
   - [[#measurements][Measurements]]
 - [[#further-work][Further Work]]
@@ -249,6 +250,10 @@ The available log levels are:
 - =+ll-info+=
 - =+ll-debug+= (the default)
 - =+ll-verbose+=
+
+*** Error Handling
+
+See [[file:examples/04-errors.lisp]].
 
 * Performance
 
