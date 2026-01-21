@@ -216,3 +216,18 @@
     (when (> len 0)
       (string->params (str->lisp str)))))
 
+(declaim (ftype (function ((or string pathname)) (alien (* http-serve-opts))) http-serve-opts))
+(defun http-serve-opts (path)
+  "Helper: Serve files from the given directory. Freeing the C-memory is on you -
+you must call `free-alien' after passing the result of this to `http-serve-dir'."
+  (let ((opts (make-alien http-serve-opts))
+        (path (if (pathnamep path) (namestring path) path)))
+    (setf (slot opts 'root-dir) path)
+    ;; NOTE: 2026-01-22 Not setting these all explicitly to NULL can cause
+    ;; segfaults.
+    (setf (slot opts 'fs) nil)
+    (setf (slot opts 'ssi-pattern) nil)
+    (setf (slot opts 'extra-headers) nil)
+    (setf (slot opts 'mime-types) nil)
+    (setf (slot opts 'page404) nil)
+    opts))

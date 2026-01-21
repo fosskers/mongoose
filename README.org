@@ -74,7 +74,7 @@ its source code]], compile a =.so=, and make it available as
 
 * Usage
 
-See also the official [[https://mongoose.ws/documentation][Mongoose Documentation]].
+See also the official [[https://mongoose.ws/documentation][Mongoose Documentation]] and the [[file:examples/][examples directory]].
 
 As a rule, the functions and types provided here have the same names as their
 underlying C ones, except that the =mg_= prefix has been stripped and underscores
