@@ -72,6 +72,19 @@ By design Mongoose is simple and has no complex build process. Simply [[https://
 its source code]], compile a =.so=, and make it available as
 =/usr/lib/libmongoose.so=.
 
+#+begin_example
+git clone https://github.com/cesanta/mongoose.git --depth=1
+cd mongoose
+gcc -shared -fPIC -o libmongoose.so mongoose.c
+#+end_example
+
+and then something like:
+
+#+begin_example
+cd /usr/lib
+sudo ln -s /path/to/libmongoose.so .
+#+end_example
+
 * Usage
 
 See also the official [[https://mongoose.ws/documentation][Mongoose Documentation]] and the [[file:examples/][examples directory]].
